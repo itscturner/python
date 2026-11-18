@@ -2,47 +2,37 @@ import os
 import random
 import time
 
-SNOW_DENSITY = 10
-DELAY = .3
+SNOW_DENSITY = 3
+DELAY = 0.3
+SNOWFLAKES = ['❄', '❅', '❆', '❇', '❈']
 
-SNOWFLAKES = ['❄', '❅', '❆', '❅', '❆', '❄️', '❇', '❈']
-
-TERM = os.get_terminal_size()
-
+term = os.get_terminal_size()
 TERMWIDTH = term.columns
 TERMHEIGHT = term.lines
 
-GRID = []
-
+grid = []
 for _ in range(TERMHEIGHT):
-  grid.append([' '] * TERMWIDTH)
+    grid.append([' '] * TERMWIDTH)
 
-def DRAW_GRID():
-  os.system('clear')
+def draw_grid():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print('\033[?25l', end='')
+    output = '\n'.join(''.join(row) for row in grid)
+    print(output, end='', flush=True)
 
-  print('\033[?25l')
+try:
+    while True:
+        row = []
+        for _ in range(TERMWIDTH):
+            if random.random() < SNOW_DENSITY / 100:
+                row.append(random.choice(SNOWFLAKES))
+            else:
+                row.append(' ')
 
-  output = ''
+        grid.insert(0, row)
+        grid.pop()
 
-  for ROW in GRID:
-    output += ''.join(ROW) + '\n'
-
-  output = output.strip('\n')
-
-  print(output, end='')
-
-while True:
-  row = []
-
-  for _ in range(TERMWIDTH):
-    if random.random() < SNOW_DENSITY / 100:
-      row.append(random.choice(SNOWFLAKES))
-    else:
-      row.append(' ')
-
-  grid.insert(0, row)
-  grid.pop()
-  
-  DRAW_GRID()
-
-  time.sleep(DELAY)
+        draw_grid()
+        time.sleep(DELAY)
+except KeyboardInterrupt:
+    print('\033[?25h')
